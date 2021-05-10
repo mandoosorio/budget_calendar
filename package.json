@@ -4,7 +4,9 @@
   "description": "A calendar for recording monthly tasks and expenses",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "server": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -27,5 +29,8 @@
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "validator": "^13.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
   }
 }
