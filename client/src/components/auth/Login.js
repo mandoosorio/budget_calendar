@@ -1,5 +1,9 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { loginUser } from "../../actions/authActions";
+import classnames from "classnames";
 
 class Login extends Component {
   constructor() {
@@ -9,6 +13,25 @@ class Login extends Component {
       password: "",
       errors: {}
     };
+  }
+
+  componentDidMount() {
+    // If logged in and user navigates to Login page, should redirect them to dashboard
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push("/dashboard");
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.auth.isAuthenticated) {
+      this.props.history.push("/dashboard"); // push user to dashboard when they login
+    }
+
+    if (nextProps.errors) {
+      this.setState({
+        errors: nextProps.errors
+      });
+    }
   }
 
   onChange = e => {
@@ -21,6 +44,10 @@ class Login extends Component {
       email: this.state.email,
       password: this.state.password
     };
+
+    // since we handle the redirect within our component, we don't need to pass in this.props.history as a parameter
+    this.props.loginUser(userData);
+
     console.log(userData);
   };
 
@@ -51,22 +78,35 @@ class Login extends Component {
           <form noValidate onSubmit={this.onSubmit}>
             <div className="mb-3">
                 <label for="exampleInputEmail1" className="form-label">Email</label>
+                <span className="red-text">
+                  {errors.email}
+                  {errors.emailnotfound}
+                </span>
                 <input onChange={this.onChange}
                     value={this.state.email}
                     error={errors.email}
                     id="email"
                     type="email" 
-                    className="form-control" aria-describedby="emailHelp"/>
+                    aria-describedby="emailHelp"
+                    className={classnames("form-control", {
+                      invalid: errors.email || errors.emailnotfound
+                    })}/>
             </div>
 
             <div className="mb-3">
               <label for="exampleInputPassword1" className="form-label">Password</label>
+              <span className="red-text">
+                  {errors.password}
+                  {errors.passwordincorrect}
+                </span>
               <input onChange={this.onChange}
                 value={this.state.password}
                 error={errors.password}
                 id="password"
                 type="password" 
-                className="form-control"/>
+                className={classnames("form-control", {
+                  invalid: errors.password || errors.passwordincorrect
+                })}/>
             </div>
 
             <div className="mb-3 form-check">
@@ -82,4 +122,18 @@ class Login extends Component {
   }
 }
 
-export default Login;
+Login.propTypes = {
+  loginUser: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  auth: state.auth,
+  errors: state.errors
+});
+
+export default connect(
+  mapStateToProps,
+  { loginUser }
+)(Login);
